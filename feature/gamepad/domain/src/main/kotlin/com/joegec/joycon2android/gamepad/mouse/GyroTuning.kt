@@ -13,15 +13,15 @@ data class GyroTuning(
     val steadyHz: Float = 1.7f,
 ) {
     companion object {
-        /** Both steadying values for the Steadiness setting. */
+        /** Both steadying values for the Steadiness setting, 0 to 1. */
         fun steadied(countsPerDegree: Float, acceleration: Float, steadiness: Float) = GyroTuning(
             countsPerDegree,
             acceleration,
-            steadyBelowDps = 3f * steadiness,
-            steadyHz = if (steadiness <= 0f) 0f else LOOSE_HZ * (TIGHT_HZ / LOOSE_HZ).pow(steadiness),
+            steadyBelowDps = 6f * steadiness,
+            steadyHz = if (steadiness <= 0f) 0f else LOOSE_HZ * (HALFWAY_HZ / LOOSE_HZ).pow(2f * steadiness),
         )
 
         private const val LOOSE_HZ = 6f
-        private const val TIGHT_HZ = 0.5f
+        private const val HALFWAY_HZ = 0.5f
     }
 }

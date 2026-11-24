@@ -117,7 +117,7 @@ class GyroPointerTest {
     @Test
     fun `the steadiness setting tightens both`() {
         assertEquals(GyroTuning(30f, 0.5f, steadyBelowDps = 0f, steadyHz = 0f), GyroTuning.steadied(30f, 0.5f, 0f))
-        assertEquals(GyroTuning(30f, 0.5f, steadyBelowDps = 3f, steadyHz = 0.5f), GyroTuning.steadied(30f, 0.5f, 1f))
+        assertEquals(GyroTuning(30f, 0.5f, steadyBelowDps = 3f, steadyHz = 0.5f), GyroTuning.steadied(30f, 0.5f, 0.5f))
     }
 
     private companion object {

@@ -13,6 +13,8 @@ class JoyconMouse(private val side: Side) {
     private var lastPacketId: Int? = null
     private var wheelDetents = 0f
     private val gyro = GyroPointer()
+    private var lastClickKeys = emptySet<String>()
+    private var heldStillMs = 0
 
     /**
      * Null while the Joy-Con is off a surface, unless [gyroInHand] says how it points from the hand.
@@ -25,7 +27,7 @@ class JoyconMouse(private val side: Side) {
             gyro.forget()
             sensor!!.x.since(lastX) to sensor.y.since(lastY)
         } else {
-            gyro.move(input, elapsedMs(input.packetId), gyroInHand)
+            heldStill(input, gyro.move(input, elapsedMs(input.packetId), gyroInHand))
         }
         val frame = MouseFrame(
             dx = dx,
@@ -45,6 +47,17 @@ class JoyconMouse(private val side: Side) {
         lastPacketId = null
         wheelDetents = 0f
         gyro.forget()
+    }
+
+    /** Pressing or letting go of a click key jolts the hand; the pointer stays put until that has passed. */
+    private fun heldStill(input: JoyconInput, moved: Pair<Int, Int>): Pair<Int, Int> {
+        val clickKeys = input.pressed.filterTo(mutableSetOf()) { it in PRIMARY || it in SECONDARY }
+        if (clickKeys != lastClickKeys) heldStillMs = CLICK_STILL_MS
+        lastClickKeys = clickKeys
+        if (heldStillMs <= 0) return moved
+        heldStillMs -= elapsedMs(input.packetId)
+        gyro.forget()
+        return 0 to 0
     }
 
     // The counters are int16 and wrap.
@@ -75,6 +88,9 @@ class JoyconMouse(private val side: Side) {
         private const val DETENTS_PER_SECOND = 20f
         private const val PACKET_ID_MASK = 0xFFFFFF
         private const val MAX_ELAPSED_MS = 100
+
+        // Long enough for a click's jolt, short enough that a drag starts without a felt wait.
+        private const val CLICK_STILL_MS = 150
 
         private val PRIMARY = setOf(JoyconButton.L.id, JoyconButton.R.id)
         private val SECONDARY = setOf(JoyconButton.ZL.id, JoyconButton.ZR.id)

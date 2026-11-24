@@ -124,7 +124,23 @@ class JoyconMouseTest {
         assertEquals(MouseFrame(dx = 20), frame)
     }
 
+    @Test
+    fun `in the hand a click holds the pointer still for 150 ms`() {
+        val tuning = GyroTuning(steadyBelowDps = 0f, steadyHz = 0f)
+        fun turning(packetId: Int, vararg pressed: JoyconButton) = mouse.read(
+            JoyconInput(packetId = packetId, accelZ = ONE_G, gyroZ = -HUNDRED_DPS, pressed = pressed.map { it.id }.toSet()),
+            gyroInHand = tuning,
+        )!!.dx
+        turning(0)
+
+        val moved = listOf(turning(50), turning(100, JoyconButton.R), turning(150, JoyconButton.R), turning(200, JoyconButton.R), turning(250, JoyconButton.R))
+
+        assertEquals(listOf(true, false, false, false, true), moved.map { it > 0 })
+    }
+
     private companion object {
         const val RAIL_DOWN_LEFT = -4096
+        const val ONE_G = 4096
+        const val HUNDRED_DPS = 1639
     }
 }
