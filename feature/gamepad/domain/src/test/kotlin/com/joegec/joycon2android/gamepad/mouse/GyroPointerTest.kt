@@ -33,8 +33,8 @@ class GyroPointerTest {
     }
 
     @Test
-    fun `nose up moves the pointer up`() {
-        val (dx, dy) = pointer.move(flat.copy(gyroX = -HUNDRED_DPS), elapsedMs = 100)
+    fun `a positive turn about x moves the pointer up`() {
+        val (dx, dy) = pointer.move(flat.copy(gyroX = HUNDRED_DPS), elapsedMs = 100)
 
         assertEquals(0, dx)
         assertEquals(-246, dy)

@@ -17,9 +17,9 @@ class GyroPointer {
 
     fun move(input: JoyconInput, elapsedMs: Int): Pair<Int, Int> {
         trackUp(input)
-        // Turning right is a negative turn about up, and nose up a negative turn about x.
+        // Turning right is a negative turn about up; tipping the top up a positive one about x.
         val yaw = -(input.gyroX * upX + input.gyroY * upY + input.gyroZ * upZ) * DPS_PER_LSB
-        val pitch = input.gyroX * DPS_PER_LSB
+        val pitch = -input.gyroX * DPS_PER_LSB
         carryX += pastDeadZone(yaw) * COUNTS_PER_DEGREE * elapsedMs / 1000f
         carryY += pastDeadZone(pitch) * COUNTS_PER_DEGREE * elapsedMs / 1000f
         val dx = carryX.toInt()

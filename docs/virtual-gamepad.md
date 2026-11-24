@@ -82,11 +82,13 @@ A Joy-Con no player holds clicks and scrolls with fixed defaults on the surface 
 ### Gyro mouse
 
 This fork's addition. With **Gyro mouse in the hand** on (Settings), a Joy-Con off a surface moves the
-pointer too, by turning (`GyroPointer`). Untested on hardware: signs and speed are derived, not measured.
+pointer too, by turning (`GyroPointer`). Directions checked on a Joy-Con 2 with an XREAL Aura
+(Android XR), 2026-11-24.
 
 - **Sideways is the turn about gravity**, whatever the pose: the gyro projected onto the resting
   accelerometer's direction. A swing reads more than 1 g, so the last pose within 0.75–1.25 g stays.
-- **Up and down is the turn about the controller's x axis**, its right.
+- **Up and down is the turn about the controller's x axis**, its right; a positive turn moves the
+  pointer up. The motion frame's "nose up reads pitch −" suggested the opposite and was wrong here.
 - 25 counts a degree, past a 1.5 °/s dead zone that swallows the gyro's [idle
   offset](dsu-motion.md#motion-frame). Fractions carry over, so slow turns still move.
 - **The mapped clicks act in the hand too**, since there is no surface to tell the mouse from the
