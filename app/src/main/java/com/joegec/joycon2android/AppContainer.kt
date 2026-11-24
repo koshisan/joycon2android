@@ -86,6 +86,7 @@ import com.joegec.joycon2android.session.UnassignControllerUseCase
 import com.joegec.joycon2android.dsu.DisableDsuUseCase
 import com.joegec.joycon2android.joyhands.JoyhandsFeed
 import com.joegec.joycon2android.joyhands.JoyhandsRepository
+import com.joegec.joycon2android.joyhands.JoyhandsSender
 import com.joegec.joycon2android.joyhands.JoyhandsVibration
 import com.joegec.joycon2android.joyhands.ObserveJoyhandsHapticsUseCase
 import com.joegec.joycon2android.joyhands.PushJoyhandsUseCase
@@ -340,6 +341,15 @@ class AppContainer(context: Context) {
     val observeGamepadStatus = ObserveGamepadStatusUseCase(gamepadRepository)
 
     val observeShizukuAvailability = ObserveShizukuAvailabilityUseCase(privilegedAccess)
+
+    private val joyhandsSender = JoyhandsSender(appContext, privilegedAccess::readyShell)
+
+    // The sender changes user with Shizuku, so it restarts when Shizuku comes or goes.
+    private val joyhandsSenderJob = scope.launch(Dispatchers.IO) {
+        combine(joyhandsOn, observeShizukuAvailability()) { on, shizuku -> on to shizuku }
+            .distinctUntilChanged()
+            .collect { (on, _) -> joyhandsSender.setRunning(on) }
+    }
 
     // --- Mouse ---
     private val mouseRepository: MouseRepository = MouseOutput(scope, appContext, privilegedAccess::acquire)

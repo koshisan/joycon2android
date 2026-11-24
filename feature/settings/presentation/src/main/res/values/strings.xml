@@ -19,7 +19,7 @@
     <string name="settings_gyro_mouse_steadiness_description">Holds the pointer still against a trembling hand; higher makes very slow aiming heavier.</string>
     <string name="settings_percent">%1$d%%</string>
     <string name="settings_joyhands_title">Send to joyhands</string>
-    <string name="settings_joyhands_description">Hands every Joy-Con report to joyhands\' sender on this device, for hand-tracked PC VR. Works beside the other outputs; keep the virtual gamepad off while streaming.</string>
+    <string name="settings_joyhands_description">Runs joyhands\' sender and hands it every Joy-Con report, for hand-tracked PC VR. Works beside the other outputs; keep the virtual gamepad off while streaming.</string>
     <string name="settings_block_device_motion_title">Ignore this device\'s motion in Eden</string>
     <string name="settings_block_device_motion_description">Eden adds this device\'s gyro to Player 1, which makes controller motion stutter. Lifted when the Virtual Gamepad and DSU are both off.</string>
     <string name="settings_needs_shizuku">Needs Shizuku running.</string>

@@ -10,6 +10,14 @@ set_target_properties(uhid_relay PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
 )
 
+# joyhands' sender: docs/joyhands.md#the-sender
+add_executable(jcstream jcstream.c)
+set_target_properties(jcstream PROPERTIES
+    OUTPUT_NAME "libjcstream"
+    SUFFIX ".so"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+)
+
 add_executable(uinput_relay uinput_relay.c)
 set_target_properties(uinput_relay PROPERTIES
     OUTPUT_NAME "libuinput_relay"
