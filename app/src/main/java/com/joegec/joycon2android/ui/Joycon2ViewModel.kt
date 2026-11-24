@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -110,6 +111,14 @@ class Joycon2ViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun startScan() = container.startScan()
+
+    // Android reconnects no Joy-Con 2 by itself, so an empty app is waiting for SYNC.
+    fun scanIfNothingIsConnected() {
+        if (!permissionHandler.isGranted()) return
+        viewModelScope.launch {
+            if (!container.observeSession().first().anyConnected) startScan()
+        }
+    }
 
     fun stopScan() = container.stopScan()
 

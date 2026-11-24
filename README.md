@@ -62,7 +62,7 @@ as an ordinary gamepad.
 
 ### 2. Connect
 
-1. Hold **SYNC** on the controller and tap **Scan**.
+1. Hold **SYNC** on the controller and tap **Scan**. Opened with no controller connected, the app scans by itself. A scan lasts 45 seconds.
 2. Assign each controller to a player — from the app, or with the Switch combos: **L** on one Joy-Con
    and **R** on another for a pair, **SL + SR** for a sideways Joy-Con, **L + R** on a Pro Controller
    or GameCube controller.

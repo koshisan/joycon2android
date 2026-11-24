@@ -18,7 +18,7 @@ class BleScanner(context: Context) {
     companion object {
         private const val TAG = "Joycon2"
         private const val NINTENDO_MANUFACTURER_ID = 0x0553
-        private const val SCAN_TIMEOUT_MS = 15_000L
+        private const val SCAN_TIMEOUT_MS = 45_000L
     }
 
     var onDeviceFound: ((ScanResult, ControllerModel, String) -> Unit)? = null

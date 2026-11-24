@@ -160,6 +160,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.scanIfNothingIsConnected()
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.recheckPermissions()
