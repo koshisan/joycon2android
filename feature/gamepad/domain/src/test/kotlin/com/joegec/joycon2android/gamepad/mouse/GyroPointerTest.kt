@@ -9,7 +9,7 @@ class GyroPointerTest {
     private val pointer = GyroPointer()
 
     // 40 counts a degree at any speed, nothing steadied: 100 °/s wants 4000 a second, which Android reaches from 1893.
-    private val linear = GyroTuning(countsPerDegree = 40f, acceleration = 0f, steadyBelowDps = 0f)
+    private val linear = GyroTuning(countsPerDegree = 40f, acceleration = 0f, steadyBelowDps = 0f, steadyHz = 0f)
 
     private val flat = JoyconInput(accelZ = ONE_G)
     private val upright = JoyconInput(accelY = -ONE_G)
@@ -86,6 +86,38 @@ class GyroPointerTest {
         val (dx, _) = pointer.move(flat.copy(gyroZ = -HUNDRED_DPS), elapsedMs = 100, linear.copy(steadyBelowDps = 2f))
 
         assertEquals(189, dx)
+    }
+
+    @Test
+    fun `a tremor is averaged out`() {
+        val smooth = linear.copy(steadyHz = 0.5f)
+        // 3 °/s to and fro at 11 Hz, with 2 °/s of real turn underneath
+        val reports = (0 until 200).map { flat.copy(gyroZ = -33 + if (it / 3 % 2 == 0) 49 else -49) }
+
+        fun farthestBack(tuning: GyroTuning): Int {
+            val pointer = GyroPointer()
+            return reports.minOf { pointer.move(it, elapsedMs = 15, tuning).first }
+        }
+
+        assertEquals(-1, farthestBack(linear))
+        assertEquals(0, farthestBack(smooth))
+    }
+
+    @Test
+    fun `a smoothed turn arrives late but whole`() {
+        val smooth = linear.copy(steadyHz = 0.5f)
+        // 10 °/s for 0.45 s: 4.5°, 180 counts, and slow enough for Android to leave alone
+        val turn = List(30) { flat.copy(gyroZ = -164) } + List(100) { flat }
+
+        val moved = turn.sumOf { pointer.move(it, elapsedMs = 15, smooth).first }
+
+        assertEquals(180.0, moved.toDouble(), 6.0)
+    }
+
+    @Test
+    fun `the steadiness setting tightens both`() {
+        assertEquals(GyroTuning(30f, 0.5f, steadyBelowDps = 0f, steadyHz = 0f), GyroTuning.steadied(30f, 0.5f, 0f))
+        assertEquals(GyroTuning(30f, 0.5f, steadyBelowDps = 3f, steadyHz = 0.5f), GyroTuning.steadied(30f, 0.5f, 1f))
     }
 
     private companion object {

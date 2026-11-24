@@ -101,8 +101,14 @@ pointer too, by turning (`GyroPointer`). Directions checked on a Joy-Con 2 with 
 |---|---|---|
 | Pointer speed | 30 | counts a degree, before acceleration |
 | Acceleration | 50% | 0% is the same distance per degree at any speed, 100% Android's full curve |
-| Steadiness | 50% | turns under 3 °/s × this are scaled by their share of it, which takes a hand's tremor out without slowing anything faster |
+| Steadiness | 50% | steadies a resting hand in two ways, below |
 
+- **Steadiness scales slow turns down**: those under 3 °/s × the setting, by their share of it.
+- **Steadiness also low-passes the turn**, since scaling alone left the pointer shaking on a 4K
+  desktop streamed to the glasses. The cut-off is 6 Hz at just above 0% and falls to 0.5 Hz at
+  100% (1.7 Hz at 50%), and rises by 0.5 Hz for each °/s the smoothed turn has: a tremor is some
+  3 °/s to and fro at 8–12 Hz and averages out, a real turn opens the filter and arrives late but
+  whole. Unchecked on hardware.
 - **The idle offset is learned, not cut out** (`GyroBias`): the mean of about a second in which every
   axis stays under 1.5 °/s and within 0.5 °/s of itself. A hand turning that slowly still trembles
   more, so slow aiming is not taken for the offset. A dead zone wide enough for the [offset](dsu-motion.md#motion-frame)

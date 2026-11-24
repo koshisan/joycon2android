@@ -296,7 +296,7 @@ class AppContainer(context: Context) {
     // Steadiness at 100% steadies turns under 3 °/s.
     private val gyroTuning = observeOutputSettings()
         .map { it.gyroMouseTuning }
-        .map { GyroTuning(it.countsPerDegree.toFloat(), it.accelerationPercent / 100f, it.steadinessPercent * 3f / 100f) }
+        .map { GyroTuning.steadied(it.countsPerDegree.toFloat(), it.accelerationPercent / 100f, it.steadinessPercent / 100f) }
         .stateIn(scope, SharingStarted.Eagerly, GyroTuning())
 
     // --- joyhands (this fork): docs/joyhands.md ---
