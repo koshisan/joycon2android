@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,6 +24,11 @@ class OutputSettingsDataStore(context: Context) : OutputSettingsRepository {
             blockDeviceMotion = prefs[BLOCK_DEVICE_MOTION] ?: defaults.blockDeviceMotion,
             joyhands = prefs[JOYHANDS] ?: defaults.joyhands,
             gyroMouse = prefs[GYRO_MOUSE] ?: defaults.gyroMouse,
+            gyroMouseTuning = GyroMouseTuning(
+                countsPerDegree = prefs[GYRO_SPEED] ?: defaults.gyroMouseTuning.countsPerDegree,
+                accelerationPercent = prefs[GYRO_ACCELERATION] ?: defaults.gyroMouseTuning.accelerationPercent,
+                steadinessPercent = prefs[GYRO_STEADINESS] ?: defaults.gyroMouseTuning.steadinessPercent,
+            ),
         )
     }
 
@@ -42,10 +48,21 @@ class OutputSettingsDataStore(context: Context) : OutputSettingsRepository {
         dataStore.edit { it[GYRO_MOUSE] = enabled }
     }
 
+    override suspend fun setGyroMouseTuning(tuning: GyroMouseTuning) {
+        dataStore.edit {
+            it[GYRO_SPEED] = tuning.countsPerDegree
+            it[GYRO_ACCELERATION] = tuning.accelerationPercent
+            it[GYRO_STEADINESS] = tuning.steadinessPercent
+        }
+    }
+
     private companion object {
         val FASTER_UPDATES = booleanPreferencesKey("fast_motion")
         val BLOCK_DEVICE_MOTION = booleanPreferencesKey("block_device_motion")
         val JOYHANDS = booleanPreferencesKey("joyhands")
         val GYRO_MOUSE = booleanPreferencesKey("gyro_mouse")
+        val GYRO_SPEED = intPreferencesKey("gyro_mouse_speed")
+        val GYRO_ACCELERATION = intPreferencesKey("gyro_mouse_acceleration")
+        val GYRO_STEADINESS = intPreferencesKey("gyro_mouse_steadiness")
     }
 }

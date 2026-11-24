@@ -15,17 +15,17 @@ class JoyconMouse(private val side: Side) {
     private val gyro = GyroPointer()
 
     /**
-     * Null while the Joy-Con is off a surface, unless [gyroInHand] lets it point from the hand.
+     * Null while the Joy-Con is off a surface, unless [gyroInHand] says how it points from the hand.
      * [defaultControls] adds the fixed clicks and scroll, for a Joy-Con no player holds.
      */
-    fun read(input: JoyconInput, defaultControls: Boolean = true, gyroInHand: Boolean = false): MouseFrame? {
+    fun read(input: JoyconInput, defaultControls: Boolean = true, gyroInHand: GyroTuning? = null): MouseFrame? {
         val sensor = input.mouse?.takeIf { input.restsOnSurface(side) }
-        if (sensor == null && !gyroInHand) return null.also { forget() }
-        val (dx, dy) = if (sensor != null) {
+        if (sensor == null && gyroInHand == null) return null.also { forget() }
+        val (dx, dy) = if (gyroInHand == null || sensor != null) {
             gyro.forget()
-            sensor.x.since(lastX) to sensor.y.since(lastY)
+            sensor!!.x.since(lastX) to sensor.y.since(lastY)
         } else {
-            gyro.move(input, elapsedMs(input.packetId))
+            gyro.move(input, elapsedMs(input.packetId), gyroInHand)
         }
         val frame = MouseFrame(
             dx = dx,

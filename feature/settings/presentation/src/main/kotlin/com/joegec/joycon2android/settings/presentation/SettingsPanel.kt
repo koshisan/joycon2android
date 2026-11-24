@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.joegec.joycon2android.model.ConnectionViewMode
+import com.joegec.joycon2android.settings.GyroMouseTuning
 import com.joegec.joycon2android.ui.components.SettingSwitch
 import com.joegec.joycon2android.ui.theme.Dimens
 import com.joegec.joycon2android.ui.theme.TextTitle
@@ -23,6 +24,7 @@ fun SettingsPanel(
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
     onJoyhandsToggle: (Boolean) -> Unit,
     onGyroMouseToggle: (Boolean) -> Unit,
+    onGyroMouseTune: (GyroMouseTuning) -> Unit,
     onShowTipsToggle: (Boolean) -> Unit,
     onWarnUnsavedMappingToggle: (Boolean) -> Unit,
     onLaunchOnMainScreenToggle: (Boolean) -> Unit,
@@ -99,14 +101,19 @@ fun SettingsPanel(
             )
         }
         SettingsSection {
-            SettingSwitch(
-                title = stringResource(R.string.settings_gyro_mouse_title),
-                description = stringResource(R.string.settings_gyro_mouse_description),
-                checked = state.outputSettings.gyroMouse,
-                onCheckedChange = onGyroMouseToggle,
-                titleStyle = MaterialTheme.typography.titleMedium,
-                warning = shizukuWarning(state),
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.sectionSpacing)) {
+                SettingSwitch(
+                    title = stringResource(R.string.settings_gyro_mouse_title),
+                    description = stringResource(R.string.settings_gyro_mouse_description),
+                    checked = state.outputSettings.gyroMouse,
+                    onCheckedChange = onGyroMouseToggle,
+                    titleStyle = MaterialTheme.typography.titleMedium,
+                    warning = shizukuWarning(state),
+                )
+                if (state.outputSettings.gyroMouse) {
+                    GyroMouseTuningSliders(state.outputSettings.gyroMouseTuning, onGyroMouseTune)
+                }
+            }
         }
     }
 }

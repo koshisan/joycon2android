@@ -89,13 +89,23 @@ pointer too, by turning (`GyroPointer`). Directions checked on a Joy-Con 2 with 
   accelerometer's direction. A swing reads more than 1 g, so the last pose within 0.75–1.25 g stays.
 - **Up and down is the turn about the controller's x axis**, its right; a positive turn moves the
   pointer up. The motion frame's "nose up reads pitch −" suggested the opposite and was wrong here.
-- **40 counts a degree, at any speed.** Android accelerates a mouse itself: XREAL Aura, Android XR,
-  2026-11-24, `dumpsys input` gives `PointerVelocityControlParameters` 1× up to 500 counts/s, 3× from
-  3000, linear between. Sent raw, a gyro's slow aim crawled and a flick shot off, so
-  `AndroidPointerSpeed` sends the speed that curve turns into the wanted one. A device with another
-  curve would need its own numbers.
+- **Android accelerates a mouse itself.** XREAL Aura, Android XR, 2026-11-24: `dumpsys input` gives
+  `PointerVelocityControlParameters` 1× up to 500 counts/s, 3× from 3000, linear between.
+  `AndroidPointerSpeed` sends the speed that curve turns into the wanted one, so the curve the hand
+  feels is the app's own. A device with another curve would need its own numbers.
+- **Three settings shape it** (`GyroTuning`), since neither fixed curve felt right on that hardware:
+  25 counts a degree under Android's full curve crawled when aiming and shot off on a flick, and
+  40 with none was worse.
+
+| Setting | Default | Does |
+|---|---|---|
+| Pointer speed | 30 | counts a degree, before acceleration |
+| Acceleration | 50% | 0% is the same distance per degree at any speed, 100% Android's full curve |
+| Steadiness | 50% | turns under 3 °/s × this are scaled by their share of it, which takes a hand's tremor out without slowing anything faster |
+
 - **The idle offset is learned, not cut out** (`GyroBias`): the mean of about a second in which every
-  axis stays within 1.2 °/s. A dead zone wide enough for the [offset](dsu-motion.md#motion-frame)
+  axis stays under 1.5 °/s and within 0.5 °/s of itself. A hand turning that slowly still trembles
+  more, so slow aiming is not taken for the offset. A dead zone wide enough for the [offset](dsu-motion.md#motion-frame)
   swallowed slow aiming. Below 0.3 °/s after that the pointer rests. Until the Joy-Con has lain
   still once, the pointer drifts by the offset.
 - **The mapped clicks act in the hand too**, since there is no surface to tell the mouse from the

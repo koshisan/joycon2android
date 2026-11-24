@@ -1,5 +1,6 @@
 package com.joegec.joycon2android.mouse
 
+import com.joegec.joycon2android.gamepad.mouse.GyroTuning
 import com.joegec.joycon2android.gamepad.mouse.JoyconMouse
 import com.joegec.joycon2android.gamepad.mouse.MouseFrame
 import com.joegec.joycon2android.model.AppUiState
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 class MouseRouter(
     private val enabled: StateFlow<Boolean>,
     private val mouseOff: (PlayerNumber) -> Boolean,
-    private val gyroInHand: () -> Boolean = { false },
+    private val gyroInHand: () -> GyroTuning? = { null },
     private val push: (MouseFrame) -> Unit,
 ) {
     private val mice = mutableMapOf<String, JoyconMouse>()

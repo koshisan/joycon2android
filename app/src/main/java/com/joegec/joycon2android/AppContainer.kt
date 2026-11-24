@@ -89,6 +89,8 @@ import com.joegec.joycon2android.joyhands.JoyhandsRepository
 import com.joegec.joycon2android.joyhands.PushJoyhandsUseCase
 import com.joegec.joycon2android.settings.SetJoyhandsUseCase
 import com.joegec.joycon2android.settings.SetGyroMouseUseCase
+import com.joegec.joycon2android.settings.SetGyroMouseTuningUseCase
+import com.joegec.joycon2android.gamepad.mouse.GyroTuning
 import com.joegec.joycon2android.dsu.DsuRepository
 import com.joegec.joycon2android.dsu.DsuServer
 import com.joegec.joycon2android.dsu.EnableDsuUseCase
@@ -284,7 +286,14 @@ class AppContainer(context: Context) {
     val setBlockDeviceMotion = SetBlockDeviceMotionUseCase(outputSettings)
     val setJoyhands = SetJoyhandsUseCase(outputSettings)
     val setGyroMouse = SetGyroMouseUseCase(outputSettings)
+    val setGyroMouseTuning = SetGyroMouseTuningUseCase(outputSettings)
     private val gyroMouse = observeOutputSettings().map { it.gyroMouse }.stateIn(scope, SharingStarted.Eagerly, false)
+
+    // Steadiness at 100% steadies turns under 3 °/s.
+    private val gyroTuning = observeOutputSettings()
+        .map { it.gyroMouseTuning }
+        .map { GyroTuning(it.countsPerDegree.toFloat(), it.accelerationPercent / 100f, it.steadinessPercent * 3f / 100f) }
+        .stateIn(scope, SharingStarted.Eagerly, GyroTuning())
 
     // --- joyhands (this fork): docs/joyhands.md ---
     private val joyhandsRepository: JoyhandsRepository = JoyhandsFeed()
@@ -327,7 +336,7 @@ class AppContainer(context: Context) {
     private val mouseRouter = MouseRouter(
         enabled = mouseRepository.enabled,
         mouseOff = { player -> player !in mouseUsers.value || player in mouseModeToggle.off.value },
-        gyroInHand = { gyroMouse.value },
+        gyroInHand = { gyroTuning.value.takeIf { gyroMouse.value } },
         push = mouseMix::desk,
     )
     val observeMouseEnabled = ObserveMouseEnabledUseCase(mouseRepository)

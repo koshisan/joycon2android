@@ -15,17 +15,17 @@ class GyroPointer {
     private var upY = 0f
     private var upZ = 1f
 
-    fun move(input: JoyconInput, elapsedMs: Int): Pair<Int, Int> {
+    fun move(input: JoyconInput, elapsedMs: Int, tuning: GyroTuning = GyroTuning()): Pair<Int, Int> {
         trackUp(input)
         val (x, y, z) = bias.remove(input.gyroX * DPS_PER_LSB, input.gyroY * DPS_PER_LSB, input.gyroZ * DPS_PER_LSB)
         // Turning right is a negative turn about up; tipping the top up a positive one about x.
         val yaw = -(x * upX + y * upY + z * upZ)
         val pitch = -x
-        val wanted = sqrt(yaw * yaw + pitch * pitch) * COUNTS_PER_DEGREE
-        if (wanted / COUNTS_PER_DEGREE < STILL_DPS) return 0 to 0
-        val sent = AndroidPointerSpeed.before(wanted) / wanted * COUNTS_PER_DEGREE * elapsedMs / 1000f
-        carryX += yaw * sent
-        carryY += pitch * sent
+        val turn = sqrt(yaw * yaw + pitch * pitch)
+        if (turn < NOISE_DPS) return 0 to 0
+        val countsPerDps = sentSpeed(turn, tuning) / turn * elapsedMs / 1000f
+        carryX += yaw * countsPerDps
+        carryY += pitch * countsPerDps
         val dx = carryX.toInt()
         val dy = carryY.toInt()
         carryX -= dx
@@ -36,6 +36,14 @@ class GyroPointer {
     fun forget() {
         carryX = 0f
         carryY = 0f
+    }
+
+    /** Counts a second to send for a turn of [dps], so that Android's curve leaves the tuned one. */
+    private fun sentSpeed(dps: Float, tuning: GyroTuning): Float {
+        val steadied = if (dps < tuning.steadyBelowDps) dps * dps / tuning.steadyBelowDps else dps
+        val linear = steadied * tuning.countsPerDegree
+        val wanted = linear * (1f + tuning.acceleration * (AndroidPointerSpeed.factor(linear) - 1f))
+        return AndroidPointerSpeed.before(wanted)
     }
 
     private fun trackUp(input: JoyconInput) {
@@ -51,10 +59,9 @@ class GyroPointer {
 
     private companion object {
         const val DPS_PER_LSB = 0.06103515625f
-        const val COUNTS_PER_DEGREE = 40f
 
         // Sensor noise left once the idle offset is gone.
-        const val STILL_DPS = 0.3f
+        const val NOISE_DPS = 0.3f
         val NEAR_ONE_G = 3072f..5120f
     }
 }

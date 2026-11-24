@@ -9,6 +9,8 @@ import com.joegec.joycon2android.settings.ObserveWarnUnsavedMappingUseCase
 import com.joegec.joycon2android.settings.OutputSettings
 import com.joegec.joycon2android.settings.SetBlockDeviceMotionUseCase
 import com.joegec.joycon2android.settings.SetFasterUpdatesUseCase
+import com.joegec.joycon2android.settings.GyroMouseTuning
+import com.joegec.joycon2android.settings.SetGyroMouseTuningUseCase
 import com.joegec.joycon2android.settings.SetGyroMouseUseCase
 import com.joegec.joycon2android.settings.SetJoyhandsUseCase
 import com.joegec.joycon2android.settings.SetLaunchOnMainScreenUseCase
@@ -25,6 +27,7 @@ class SettingsViewModel(
     private val setBlockDeviceMotion: SetBlockDeviceMotionUseCase,
     private val setJoyhands: SetJoyhandsUseCase,
     private val setGyroMouse: SetGyroMouseUseCase,
+    private val setGyroMouseTuning: SetGyroMouseTuningUseCase,
     observeShowTips: ObserveShowTipsUseCase,
     private val setShowTips: SetShowTipsUseCase,
     observeLaunchOnMainScreen: ObserveLaunchOnMainScreenUseCase,
@@ -66,6 +69,10 @@ class SettingsViewModel(
 
     fun toggleGyroMouse(enabled: Boolean) {
         viewModelScope.launch { setGyroMouse(enabled) }
+    }
+
+    fun tuneGyroMouse(tuning: GyroMouseTuning) {
+        viewModelScope.launch { setGyroMouseTuning(tuning) }
     }
 
     fun toggleShowTips(enabled: Boolean) {

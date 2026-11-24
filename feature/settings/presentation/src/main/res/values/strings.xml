@@ -11,6 +11,13 @@
     <string name="settings_faster_updates_description">Joy-Cons send input about twice as often for smoother motion and quicker buttons but uses more battery.</string>
     <string name="settings_gyro_mouse_title">Gyro mouse in the hand</string>
     <string name="settings_gyro_mouse_description">While the mouse is on, a Joy-Con held in the hand moves the pointer by turning, as an air mouse. On a surface it still uses its sensor.</string>
+    <string name="settings_gyro_mouse_speed_title">Pointer speed</string>
+    <string name="settings_gyro_mouse_speed_description">How far the pointer moves for each degree turned.</string>
+    <string name="settings_gyro_mouse_acceleration_title">Acceleration</string>
+    <string name="settings_gyro_mouse_acceleration_description">How much further a fast turn carries the pointer than a slow one. At 0% every degree moves it the same distance.</string>
+    <string name="settings_gyro_mouse_steadiness_title">Steadiness</string>
+    <string name="settings_gyro_mouse_steadiness_description">Holds the pointer still against a trembling hand; higher makes very slow aiming heavier.</string>
+    <string name="settings_percent">%1$d%%</string>
     <string name="settings_joyhands_title">Send to joyhands</string>
     <string name="settings_joyhands_description">Hands every Joy-Con report to joyhands\' sender on this device, for hand-tracked PC VR. Works beside the other outputs; keep the virtual gamepad off while streaming.</string>
     <string name="settings_block_device_motion_title">Ignore this device\'s motion in Eden</string>

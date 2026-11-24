@@ -5,4 +5,5 @@ data class OutputSettings(
     val blockDeviceMotion: Boolean = true,
     val joyhands: Boolean = false,
     val gyroMouse: Boolean = false,
+    val gyroMouseTuning: GyroMouseTuning = GyroMouseTuning(),
 )

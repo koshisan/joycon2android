@@ -8,4 +8,5 @@ interface OutputSettingsRepository {
     suspend fun setBlockDeviceMotion(enabled: Boolean)
     suspend fun setJoyhands(enabled: Boolean)
     suspend fun setGyroMouse(enabled: Boolean)
+    suspend fun setGyroMouseTuning(tuning: GyroMouseTuning)
 }
