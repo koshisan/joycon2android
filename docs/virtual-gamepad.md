@@ -79,6 +79,21 @@ A Joy-Con no player holds clicks and scrolls with fixed defaults on the surface 
 | ZL, ZR | secondary button | unheld Joy-Con only |
 | Stick Y | wheel | unheld Joy-Con only; rate set by tilt, up to 20 detents/s past a 25% dead zone, timed by the packet clock |
 
+### Gyro mouse
+
+This fork's addition. With **Gyro mouse in the hand** on (Settings), a Joy-Con off a surface moves the
+pointer too, by turning (`GyroPointer`). Untested on hardware: signs and speed are derived, not measured.
+
+- **Sideways is the turn about gravity**, whatever the pose: the gyro projected onto the resting
+  accelerometer's direction. A swing reads more than 1 g, so the last pose within 0.75–1.25 g stays.
+- **Up and down is the turn about the controller's x axis**, its right.
+- 25 counts a degree, past a 1.5 °/s dead zone that swallows the gyro's [idle
+  offset](dsu-motion.md#motion-frame). Fractions carry over, so slow turns still move.
+- **The mapped clicks act in the hand too**, since there is no surface to tell the mouse from the
+  game by. The toggle combo still switches a player's mouse off.
+- A Joy-Con no player holds clicks and scrolls with the same fixed defaults as on a surface.
+- A controller with no optical sensor can point this way as well.
+
 **On a surface** means the distance reading says so ([sensor](protocol.md#mouse-0x100x17)) **and**
 the Joy-Con stands on its rail; lifted, it is a plain controller again.
 

@@ -8,12 +8,13 @@ import com.joegec.joycon2android.model.PlayerNumber
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Moves the pointer with every Joy-Con on a surface, but those of a player whose mouse is off. One no
+ * Moves the pointer with every Joy-Con on a surface, or in the hand with the gyro mouse on, but those of a player whose mouse is off. One no
  * player holds also clicks and scrolls with fixed defaults: docs/virtual-gamepad.md#mouse
  */
 class MouseRouter(
     private val enabled: StateFlow<Boolean>,
     private val mouseOff: (PlayerNumber) -> Boolean,
+    private val gyroInHand: () -> Boolean = { false },
     private val push: (MouseFrame) -> Unit,
 ) {
     private val mice = mutableMapOf<String, JoyconMouse>()
@@ -27,7 +28,7 @@ class MouseRouter(
             state.players.filterNot { mouseOff(it.player) }
                 .flatMap { player -> listOfNotNull(player.left, player.right).map { it to player.player } }
         mice.keys.retainAll(owners.map { it.first.address }.toSet())
-        val frames = owners.mapNotNull { (joycon, owner) -> mouseOf(joycon).read(joycon.input, defaultControls = owner == null) }
+        val frames = owners.mapNotNull { (joycon, owner) -> mouseOf(joycon).read(joycon.input, defaultControls = owner == null, gyroInHand = gyroInHand()) }
         push(frames.fold(MouseFrame(), MouseFrame::plus))
     }
 

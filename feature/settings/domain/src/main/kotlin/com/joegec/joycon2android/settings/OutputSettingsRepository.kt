@@ -7,4 +7,5 @@ interface OutputSettingsRepository {
     suspend fun setFasterUpdates(enabled: Boolean)
     suspend fun setBlockDeviceMotion(enabled: Boolean)
     suspend fun setJoyhands(enabled: Boolean)
+    suspend fun setGyroMouse(enabled: Boolean)
 }

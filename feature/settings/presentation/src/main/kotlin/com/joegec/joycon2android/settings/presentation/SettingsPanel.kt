@@ -22,6 +22,7 @@ fun SettingsPanel(
     onFasterUpdatesToggle: (Boolean) -> Unit,
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
     onJoyhandsToggle: (Boolean) -> Unit,
+    onGyroMouseToggle: (Boolean) -> Unit,
     onShowTipsToggle: (Boolean) -> Unit,
     onWarnUnsavedMappingToggle: (Boolean) -> Unit,
     onLaunchOnMainScreenToggle: (Boolean) -> Unit,
@@ -95,6 +96,16 @@ fun SettingsPanel(
                 checked = state.outputSettings.joyhands,
                 onCheckedChange = onJoyhandsToggle,
                 titleStyle = MaterialTheme.typography.titleMedium,
+            )
+        }
+        SettingsSection {
+            SettingSwitch(
+                title = stringResource(R.string.settings_gyro_mouse_title),
+                description = stringResource(R.string.settings_gyro_mouse_description),
+                checked = state.outputSettings.gyroMouse,
+                onCheckedChange = onGyroMouseToggle,
+                titleStyle = MaterialTheme.typography.titleMedium,
+                warning = shizukuWarning(state),
             )
         }
     }

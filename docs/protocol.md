@@ -114,7 +114,7 @@ stream.
 | Battery Current | 0x28 | int16 | mA = raw / 100 |
 | Temperature | 0x2E | int16 | °C = 25 + raw / 127 |
 | Accel X/Y/Z | 0x30–0x35 | int16 ×3 | 4096 = 1 g |
-| Gyro X/Y/Z | 0x36–0x3B | int16 ×3 | 48000 = 360 °/s |
+| Gyro X/Y/Z | 0x36–0x3B | int16 ×3 | 0.061 °/s per LSB ([measured](dsu-motion.md#motion-frame)) |
 | Trigger L | 0x3C | uint8 | analog, GameCube controller only ([below](#analog-triggers)) |
 | Trigger R | 0x3D | uint8 | analog, GameCube controller only |
 

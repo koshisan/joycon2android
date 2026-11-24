@@ -5,28 +5,36 @@ import com.joegec.joycon2android.model.JoyconInput
 import com.joegec.joycon2android.model.Side
 import kotlin.math.abs
 
-/** One Joy-Con 2 read as a mouse while it rests on a surface: docs/virtual-gamepad.md#mouse */
+/** One Joy-Con read as a mouse, on a surface or turned in the hand: docs/virtual-gamepad.md#mouse */
 class JoyconMouse(private val side: Side) {
 
     private var lastX: Int? = null
     private var lastY: Int? = null
     private var lastPacketId: Int? = null
     private var wheelDetents = 0f
+    private val gyro = GyroPointer()
 
     /**
-     * Null while the Joy-Con is lifted, held, or has no mouse sensor. [defaultControls] adds the
-     * fixed clicks and scroll, for a Joy-Con no player holds.
+     * Null while the Joy-Con is off a surface, unless [gyroInHand] lets it point from the hand.
+     * [defaultControls] adds the fixed clicks and scroll, for a Joy-Con no player holds.
      */
-    fun read(input: JoyconInput, defaultControls: Boolean = true): MouseFrame? {
-        val sensor = input.mouse?.takeIf { input.restsOnSurface(side) } ?: return null.also { forget() }
+    fun read(input: JoyconInput, defaultControls: Boolean = true, gyroInHand: Boolean = false): MouseFrame? {
+        val sensor = input.mouse?.takeIf { input.restsOnSurface(side) }
+        if (sensor == null && !gyroInHand) return null.also { forget() }
+        val (dx, dy) = if (sensor != null) {
+            gyro.forget()
+            sensor.x.since(lastX) to sensor.y.since(lastY)
+        } else {
+            gyro.move(input, elapsedMs(input.packetId))
+        }
         val frame = MouseFrame(
-            dx = sensor.x.since(lastX),
-            dy = sensor.y.since(lastY),
+            dx = dx,
+            dy = dy,
             wheel = if (defaultControls) wheel(input) else 0.also { wheelDetents = 0f },
             buttons = if (defaultControls) buttons(input.pressed) else emptySet(),
         )
-        lastX = sensor.x
-        lastY = sensor.y
+        lastX = sensor?.x
+        lastY = sensor?.y
         lastPacketId = input.packetId
         return frame
     }
@@ -36,6 +44,7 @@ class JoyconMouse(private val side: Side) {
         lastY = null
         lastPacketId = null
         wheelDetents = 0f
+        gyro.forget()
     }
 
     // The counters are int16 and wrap.

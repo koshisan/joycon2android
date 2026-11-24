@@ -9,6 +9,8 @@
     <string name="settings_show_tips_description">Hints around the app that point out features. Tap one to turn them off.</string>
     <string name="settings_faster_updates_title">Faster controller updates</string>
     <string name="settings_faster_updates_description">Joy-Cons send input about twice as often for smoother motion and quicker buttons but uses more battery.</string>
+    <string name="settings_gyro_mouse_title">Gyro mouse in the hand</string>
+    <string name="settings_gyro_mouse_description">While the mouse is on, a Joy-Con held in the hand moves the pointer by turning, as an air mouse. On a surface it still uses its sensor.</string>
     <string name="settings_joyhands_title">Send to joyhands</string>
     <string name="settings_joyhands_description">Hands every Joy-Con report to joyhands\' sender on this device, for hand-tracked PC VR. Works beside the other outputs; keep the virtual gamepad off while streaming.</string>
     <string name="settings_block_device_motion_title">Ignore this device\'s motion in Eden</string>

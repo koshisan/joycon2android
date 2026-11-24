@@ -65,14 +65,16 @@ object JoyhandsPacket {
         short(axis((if (left) input.stickX else input.rightStickX) - STICK_CENTRE))
         short(axis(STICK_CENTRE - (if (left) input.stickY else input.rightStickY)))
         short(input.accelX); short(input.accelY); short(input.accelZ) // 4096 per g on both generations
-        // 48000 per 360 degrees a second, sent in thousandths of a degree per second
-        int(input.gyroX * 15 / 2); int(input.gyroY * 15 / 2); int(input.gyroZ * 15 / 2)
+        int(milliDps(input.gyroX)); int(milliDps(input.gyroY)); int(milliDps(input.gyroZ))
         byte(input.battery?.percent?.coerceIn(0, 100) ?: NO_BATTERY)
         val color = controller.accentColor
         byte(if (color != null) 1 else 0)
         byte((color ?: 0) shr 16); byte((color ?: 0) shr 8); byte(color ?: 0)
         return true
     }
+
+    // 0.061035 degrees a second per LSB: docs/dsu-motion.md#motion-frame
+    private fun milliDps(raw: Int): Int = raw * 61035 / 1000
 
     private fun axis(fromCentre: Int): Int = (fromCentre * 16).coerceIn(-32767, 32767)
 

@@ -22,6 +22,7 @@ class OutputSettingsDataStore(context: Context) : OutputSettingsRepository {
             fasterUpdates = prefs[FASTER_UPDATES] ?: defaults.fasterUpdates,
             blockDeviceMotion = prefs[BLOCK_DEVICE_MOTION] ?: defaults.blockDeviceMotion,
             joyhands = prefs[JOYHANDS] ?: defaults.joyhands,
+            gyroMouse = prefs[GYRO_MOUSE] ?: defaults.gyroMouse,
         )
     }
 
@@ -37,9 +38,14 @@ class OutputSettingsDataStore(context: Context) : OutputSettingsRepository {
         dataStore.edit { it[JOYHANDS] = enabled }
     }
 
+    override suspend fun setGyroMouse(enabled: Boolean) {
+        dataStore.edit { it[GYRO_MOUSE] = enabled }
+    }
+
     private companion object {
         val FASTER_UPDATES = booleanPreferencesKey("fast_motion")
         val BLOCK_DEVICE_MOTION = booleanPreferencesKey("block_device_motion")
         val JOYHANDS = booleanPreferencesKey("joyhands")
+        val GYRO_MOUSE = booleanPreferencesKey("gyro_mouse")
     }
 }

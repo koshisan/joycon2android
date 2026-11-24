@@ -88,6 +88,7 @@ import com.joegec.joycon2android.joyhands.JoyhandsFeed
 import com.joegec.joycon2android.joyhands.JoyhandsRepository
 import com.joegec.joycon2android.joyhands.PushJoyhandsUseCase
 import com.joegec.joycon2android.settings.SetJoyhandsUseCase
+import com.joegec.joycon2android.settings.SetGyroMouseUseCase
 import com.joegec.joycon2android.dsu.DsuRepository
 import com.joegec.joycon2android.dsu.DsuServer
 import com.joegec.joycon2android.dsu.EnableDsuUseCase
@@ -282,6 +283,8 @@ class AppContainer(context: Context) {
     val setFasterUpdates = SetFasterUpdatesUseCase(outputSettings)
     val setBlockDeviceMotion = SetBlockDeviceMotionUseCase(outputSettings)
     val setJoyhands = SetJoyhandsUseCase(outputSettings)
+    val setGyroMouse = SetGyroMouseUseCase(outputSettings)
+    private val gyroMouse = observeOutputSettings().map { it.gyroMouse }.stateIn(scope, SharingStarted.Eagerly, false)
 
     // --- joyhands (this fork): docs/joyhands.md ---
     private val joyhandsRepository: JoyhandsRepository = JoyhandsFeed()
@@ -324,6 +327,7 @@ class AppContainer(context: Context) {
     private val mouseRouter = MouseRouter(
         enabled = mouseRepository.enabled,
         mouseOff = { player -> player !in mouseUsers.value || player in mouseModeToggle.off.value },
+        gyroInHand = { gyroMouse.value },
         push = mouseMix::desk,
     )
     val observeMouseEnabled = ObserveMouseEnabledUseCase(mouseRepository)
@@ -437,9 +441,9 @@ class AppContainer(context: Context) {
     private val keyboardKeyRouter = HeldKeyRouter(OutputBindings(deviceKeysActing, keyboardBindings)) { held ->
         copy(keyboard = keyboard.copy(keys = held))
     }
-    // Mouse & keys has no game to hand the buttons back to.
+    // Mouse & keys has no game to hand the buttons back to, and a gyro mouse clicks from the hand.
     private val mouseActions = OutputBindings(deviceKeysActing, mouseModeBindings) {
-        console.value == Console.PC || it.spendsButtonsOnMouse
+        console.value == Console.PC || gyroMouse.value || it.spendsButtonsOnMouse
     }
     private val mouseActionRouter = HeldKeyRouter(mouseActions) { held -> copy(mouseActions = held) }
     private val pushKeyboardFrame = PushKeyboardFrameUseCase(keyboardRepository)

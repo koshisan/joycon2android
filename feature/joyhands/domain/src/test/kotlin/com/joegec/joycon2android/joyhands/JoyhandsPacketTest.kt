@@ -70,11 +70,10 @@ class JoyhandsPacketTest {
 
     @Test
     fun `gyro is sent in thousandths of a degree per second`() {
-        // 48000 raw is one turn a second
-        val b = encode(Side.LEFT, JoyconInput(accelZ = 4096, gyroX = 48000 / 360, gyroZ = -1000))
+        val b = encode(Side.LEFT, JoyconInput(accelZ = 4096, gyroX = 1639, gyroZ = -32768))
         assertEquals(4096, b.getShort(22).toInt())
-        assertEquals(997, b.getInt(24))
-        assertEquals(-7500, b.getInt(32))
+        assertEquals(100_036, b.getInt(24))
+        assertEquals(-1_999_994, b.getInt(32))
     }
 
     @Test
