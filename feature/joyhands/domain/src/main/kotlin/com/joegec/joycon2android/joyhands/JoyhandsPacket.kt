@@ -62,8 +62,9 @@ object JoyhandsPacket {
         short(buttons(input.buttons, if (left) LEFT else RIGHT))
         // The stick is calibrated onto 0..4095 around 2048 and grows upwards. joyhands wants -32767..32767 with
         // right and down positive, as the kernel reports a Joy-Con 1.
-        short(axis((if (left) input.stickX else input.rightStickX) - STICK_CENTRE))
-        short(axis(STICK_CENTRE - (if (left) input.stickY else input.rightStickY)))
+        // A lone Joy-Con's stick is stickX/stickY on either side; the right pair is the Pro Controller's.
+        short(axis(input.stickX - STICK_CENTRE))
+        short(axis(STICK_CENTRE - input.stickY))
         short(input.accelX); short(input.accelY); short(input.accelZ) // 4096 per g on both generations
         int(milliDps(input.gyroX)); int(milliDps(input.gyroY)); int(milliDps(input.gyroZ))
         byte(input.battery?.percent?.coerceIn(0, 100) ?: NO_BATTERY)

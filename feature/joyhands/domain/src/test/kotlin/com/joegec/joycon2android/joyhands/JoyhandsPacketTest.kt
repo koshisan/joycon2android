@@ -63,9 +63,10 @@ class JoyhandsPacketTest {
     }
 
     @Test
-    fun `right Joy-Con reads the right stick`() {
-        val b = encode(Side.RIGHT, JoyconInput(stickX = 0, rightStickX = 3048))
+    fun `a right Joy-Con's stick is read from the same fields as a left one's`() {
+        val b = encode(Side.RIGHT, JoyconInput(stickX = 3048, stickY = 1048, rightStickX = 0))
         assertEquals(16000, b.getShort(14).toInt())
+        assertEquals(16000, b.getShort(16).toInt())
     }
 
     @Test
