@@ -1,7 +1,6 @@
 package com.joegec.joycon2android.gamepad.mouse
 
 import com.joegec.joycon2android.model.JoyconInput
-import kotlin.math.abs
 import kotlin.math.sqrt
 
 /** Pointer movement from a Joy-Con turned in the hand: docs/virtual-gamepad.md#gyro-mouse */
@@ -9,6 +8,7 @@ class GyroPointer {
 
     private var carryX = 0f
     private var carryY = 0f
+    private val bias = GyroBias()
 
     // Raw accel points up at rest; kept through a swing, when it no longer reads gravity alone.
     private var upX = 0f
@@ -17,11 +17,15 @@ class GyroPointer {
 
     fun move(input: JoyconInput, elapsedMs: Int): Pair<Int, Int> {
         trackUp(input)
+        val (x, y, z) = bias.remove(input.gyroX * DPS_PER_LSB, input.gyroY * DPS_PER_LSB, input.gyroZ * DPS_PER_LSB)
         // Turning right is a negative turn about up; tipping the top up a positive one about x.
-        val yaw = -(input.gyroX * upX + input.gyroY * upY + input.gyroZ * upZ) * DPS_PER_LSB
-        val pitch = -input.gyroX * DPS_PER_LSB
-        carryX += pastDeadZone(yaw) * COUNTS_PER_DEGREE * elapsedMs / 1000f
-        carryY += pastDeadZone(pitch) * COUNTS_PER_DEGREE * elapsedMs / 1000f
+        val yaw = -(x * upX + y * upY + z * upZ)
+        val pitch = -x
+        val wanted = sqrt(yaw * yaw + pitch * pitch) * COUNTS_PER_DEGREE
+        if (wanted / COUNTS_PER_DEGREE < STILL_DPS) return 0 to 0
+        val sent = AndroidPointerSpeed.before(wanted) / wanted * COUNTS_PER_DEGREE * elapsedMs / 1000f
+        carryX += yaw * sent
+        carryY += pitch * sent
         val dx = carryX.toInt()
         val dy = carryY.toInt()
         carryX -= dx
@@ -45,15 +49,12 @@ class GyroPointer {
         upZ = z / length
     }
 
-    private fun pastDeadZone(dps: Float): Float =
-        if (abs(dps) <= DEAD_ZONE_DPS) 0f else dps - DEAD_ZONE_DPS * if (dps > 0) 1 else -1
-
     private companion object {
         const val DPS_PER_LSB = 0.06103515625f
-        const val COUNTS_PER_DEGREE = 25f
+        const val COUNTS_PER_DEGREE = 40f
 
-        // Above the idle offset, up to 0.9 °/s: docs/dsu-motion.md#motion-frame
-        const val DEAD_ZONE_DPS = 1.5f
+        // Sensor noise left once the idle offset is gone.
+        const val STILL_DPS = 0.3f
         val NEAR_ONE_G = 3072f..5120f
     }
 }

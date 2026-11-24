@@ -89,8 +89,15 @@ pointer too, by turning (`GyroPointer`). Directions checked on a Joy-Con 2 with 
   accelerometer's direction. A swing reads more than 1 g, so the last pose within 0.75–1.25 g stays.
 - **Up and down is the turn about the controller's x axis**, its right; a positive turn moves the
   pointer up. The motion frame's "nose up reads pitch −" suggested the opposite and was wrong here.
-- 25 counts a degree, past a 1.5 °/s dead zone that swallows the gyro's [idle
-  offset](dsu-motion.md#motion-frame). Fractions carry over, so slow turns still move.
+- **40 counts a degree, at any speed.** Android accelerates a mouse itself: XREAL Aura, Android XR,
+  2026-11-24, `dumpsys input` gives `PointerVelocityControlParameters` 1× up to 500 counts/s, 3× from
+  3000, linear between. Sent raw, a gyro's slow aim crawled and a flick shot off, so
+  `AndroidPointerSpeed` sends the speed that curve turns into the wanted one. A device with another
+  curve would need its own numbers.
+- **The idle offset is learned, not cut out** (`GyroBias`): the mean of about a second in which every
+  axis stays within 1.2 °/s. A dead zone wide enough for the [offset](dsu-motion.md#motion-frame)
+  swallowed slow aiming. Below 0.3 °/s after that the pointer rests. Until the Joy-Con has lain
+  still once, the pointer drifts by the offset.
 - **The mapped clicks act in the hand too**, since there is no surface to tell the mouse from the
   game by. The toggle combo still switches a player's mouse off.
 - A Joy-Con no player holds clicks and scrolls with the same fixed defaults as on a surface.

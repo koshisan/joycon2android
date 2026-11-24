@@ -12,15 +12,18 @@ class GyroPointerTest {
     private val upright = JoyconInput(accelY = -ONE_G)
 
     @Test
-    fun `a still Joy-Con moves nothing`() {
-        assertEquals(0 to 0, pointer.move(flat.copy(gyroX = 10, gyroY = -12, gyroZ = 14), elapsedMs = 100))
+    fun `a Joy-Con that has lain still moves nothing, whatever its idle offset`() {
+        val idle = flat.copy(gyroX = 10, gyroY = -12, gyroZ = 14)
+        repeat(64) { pointer.move(idle, elapsedMs = 15) }
+
+        assertEquals(0 to 0, pointer.move(idle, elapsedMs = 100))
     }
 
     @Test
     fun `turning right while flat moves the pointer right`() {
         val (dx, dy) = pointer.move(flat.copy(gyroZ = -HUNDRED_DPS), elapsedMs = 100)
 
-        assertEquals(246, dx) // 98.5 °/s past the dead zone, 0.1 s, 25 counts a degree
+        assertEquals(189, dx) // 100 °/s at 40 counts a degree is 4000 a second, which Android reaches from 1893
         assertEquals(0, dy)
     }
 
@@ -28,7 +31,7 @@ class GyroPointerTest {
     fun `turning about gravity moves the pointer sideways whatever the pose`() {
         val (dx, dy) = pointer.move(upright.copy(gyroY = HUNDRED_DPS), elapsedMs = 100)
 
-        assertEquals(246, dx)
+        assertEquals(189, dx)
         assertEquals(0, dy)
     }
 
@@ -37,16 +40,16 @@ class GyroPointerTest {
         val (dx, dy) = pointer.move(flat.copy(gyroX = HUNDRED_DPS), elapsedMs = 100)
 
         assertEquals(0, dx)
-        assertEquals(-246, dy)
+        assertEquals(-189, dy)
     }
 
     @Test
     fun `slow turns add up across reports`() {
-        val slow = flat.copy(gyroZ = -41) // 2.5 °/s: a quarter of a count per 10 ms
+        val slow = flat.copy(gyroZ = -10) // 0.61 °/s: a quarter of a count per 10 ms
 
         val moved = (1..8).sumOf { pointer.move(slow, elapsedMs = 10).first }
 
-        assertEquals(2, moved)
+        assertEquals(1, moved)
     }
 
     @Test
@@ -55,7 +58,7 @@ class GyroPointerTest {
 
         val (dx, _) = pointer.move(JoyconInput(accelX = 3 * ONE_G, gyroZ = -HUNDRED_DPS), elapsedMs = 100)
 
-        assertEquals(246, dx)
+        assertEquals(189, dx)
     }
 
     private companion object {
