@@ -101,6 +101,8 @@ dependencies {
     implementation(project(":feature:dsu:domain"))
     implementation(project(":feature:dsu:data"))
     implementation(project(":feature:dsu:presentation"))
+    implementation(project(":feature:joyhands:domain"))
+    implementation(project(":feature:joyhands:data"))
     implementation(project(":feature:assignment:domain"))
     implementation(project(":feature:assignment:data"))
     implementation(project(":feature:assignment:presentation"))

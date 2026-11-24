@@ -21,6 +21,7 @@ fun SettingsPanel(
     onViewModeChange: (ConnectionViewMode) -> Unit,
     onFasterUpdatesToggle: (Boolean) -> Unit,
     onBlockDeviceMotionToggle: (Boolean) -> Unit,
+    onJoyhandsToggle: (Boolean) -> Unit,
     onShowTipsToggle: (Boolean) -> Unit,
     onWarnUnsavedMappingToggle: (Boolean) -> Unit,
     onLaunchOnMainScreenToggle: (Boolean) -> Unit,
@@ -85,6 +86,15 @@ fun SettingsPanel(
                 onCheckedChange = onBlockDeviceMotionToggle,
                 titleStyle = MaterialTheme.typography.titleMedium,
                 warning = shizukuWarning(state),
+            )
+        }
+        SettingsSection {
+            SettingSwitch(
+                title = stringResource(R.string.settings_joyhands_title),
+                description = stringResource(R.string.settings_joyhands_description),
+                checked = state.outputSettings.joyhands,
+                onCheckedChange = onJoyhandsToggle,
+                titleStyle = MaterialTheme.typography.titleMedium,
             )
         }
     }

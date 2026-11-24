@@ -21,6 +21,7 @@ class OutputSettingsDataStore(context: Context) : OutputSettingsRepository {
         OutputSettings(
             fasterUpdates = prefs[FASTER_UPDATES] ?: defaults.fasterUpdates,
             blockDeviceMotion = prefs[BLOCK_DEVICE_MOTION] ?: defaults.blockDeviceMotion,
+            joyhands = prefs[JOYHANDS] ?: defaults.joyhands,
         )
     }
 
@@ -32,8 +33,13 @@ class OutputSettingsDataStore(context: Context) : OutputSettingsRepository {
         dataStore.edit { it[BLOCK_DEVICE_MOTION] = enabled }
     }
 
+    override suspend fun setJoyhands(enabled: Boolean) {
+        dataStore.edit { it[JOYHANDS] = enabled }
+    }
+
     private companion object {
         val FASTER_UPDATES = booleanPreferencesKey("fast_motion")
         val BLOCK_DEVICE_MOTION = booleanPreferencesKey("block_device_motion")
+        val JOYHANDS = booleanPreferencesKey("joyhands")
     }
 }

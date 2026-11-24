@@ -9,6 +9,7 @@ import com.joegec.joycon2android.settings.ObserveWarnUnsavedMappingUseCase
 import com.joegec.joycon2android.settings.OutputSettings
 import com.joegec.joycon2android.settings.SetBlockDeviceMotionUseCase
 import com.joegec.joycon2android.settings.SetFasterUpdatesUseCase
+import com.joegec.joycon2android.settings.SetJoyhandsUseCase
 import com.joegec.joycon2android.settings.SetLaunchOnMainScreenUseCase
 import com.joegec.joycon2android.settings.SetShowTipsUseCase
 import com.joegec.joycon2android.settings.SetWarnUnsavedMappingUseCase
@@ -21,6 +22,7 @@ class SettingsViewModel(
     observeOutputSettings: ObserveOutputSettingsUseCase,
     private val setFasterUpdates: SetFasterUpdatesUseCase,
     private val setBlockDeviceMotion: SetBlockDeviceMotionUseCase,
+    private val setJoyhands: SetJoyhandsUseCase,
     observeShowTips: ObserveShowTipsUseCase,
     private val setShowTips: SetShowTipsUseCase,
     observeLaunchOnMainScreen: ObserveLaunchOnMainScreenUseCase,
@@ -54,6 +56,10 @@ class SettingsViewModel(
 
     fun toggleBlockDeviceMotion(enabled: Boolean) {
         viewModelScope.launch { setBlockDeviceMotion(enabled) }
+    }
+
+    fun toggleJoyhands(enabled: Boolean) {
+        viewModelScope.launch { setJoyhands(enabled) }
     }
 
     fun toggleShowTips(enabled: Boolean) {

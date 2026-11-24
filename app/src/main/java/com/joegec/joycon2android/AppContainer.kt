@@ -84,6 +84,10 @@ import com.joegec.joycon2android.session.SessionCoordinator
 import com.joegec.joycon2android.session.SetControllerTypeUseCase
 import com.joegec.joycon2android.session.UnassignControllerUseCase
 import com.joegec.joycon2android.dsu.DisableDsuUseCase
+import com.joegec.joycon2android.joyhands.JoyhandsFeed
+import com.joegec.joycon2android.joyhands.JoyhandsRepository
+import com.joegec.joycon2android.joyhands.PushJoyhandsUseCase
+import com.joegec.joycon2android.settings.SetJoyhandsUseCase
 import com.joegec.joycon2android.dsu.DsuRepository
 import com.joegec.joycon2android.dsu.DsuServer
 import com.joegec.joycon2android.dsu.EnableDsuUseCase
@@ -174,10 +178,13 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.io.File
 
 /** Composition root: docs/architecture.md#composition-root--appcontainer */
@@ -274,6 +281,17 @@ class AppContainer(context: Context) {
     val observeOutputSettings = ObserveOutputSettingsUseCase(outputSettings)
     val setFasterUpdates = SetFasterUpdatesUseCase(outputSettings)
     val setBlockDeviceMotion = SetBlockDeviceMotionUseCase(outputSettings)
+    val setJoyhands = SetJoyhandsUseCase(outputSettings)
+
+    // --- joyhands (this fork): docs/joyhands.md ---
+    private val joyhandsRepository: JoyhandsRepository = JoyhandsFeed()
+    private val pushJoyhands = PushJoyhandsUseCase(joyhandsRepository)
+    private val joyhandsOn = observeOutputSettings().map { it.joyhands }.distinctUntilChanged()
+
+    // Straight from the controllers, not the session: joyhands wants every Joy-Con, assigned to a player or not.
+    private val joyhandsJob = scope.launch(Dispatchers.IO) {
+        joyhandsOn.collectLatest { on -> if (on) controllerRepository.controllers.collect { pushJoyhands(it) } }
+    }
 
     // --- Assignment ---
     val assignmentRepository: AssignmentRepository = PlayerAssignmentManager()
@@ -519,7 +537,7 @@ class AppContainer(context: Context) {
 
     private val fasterUpdatesPolicy = FasterUpdatesPolicy(
         scope = scope,
-        outputActive = outputOn,
+        outputActive = combine(outputOn, joyhandsOn) { output, joyhands -> output || joyhands },
         fasterUpdates = observeOutputSettings().map { it.fasterUpdates },
         setHighConnectionPriority = setHighConnectionPriority,
     ).also { it.start() }
