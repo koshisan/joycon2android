@@ -285,8 +285,8 @@ Shizuku is.
 
 ## Android keys
 
-Each player's mapping, per console, has an **Android** section: buttons bound to Home, Back or
-Screenshot act as the device's own keys and never reach the game. `AndroidKeyRouter` applies the
+Each player's mapping, per console, has an **Android** section: buttons bound to Home, Back,
+Screenshot or App launcher act as the device's own keys and never reach the game. `AndroidKeyRouter` applies the
 mapping of the [output's](architecture.md#output) console, while it runs. A key the pad does not
 send goes through the [keyboard](#keyboard), which a bound Android key brings up, or the shell while it is down (set Off).
 
@@ -295,9 +295,14 @@ send goes through the [keyboard](#keyboard), which a bound Android key brings up
 | Home | `KEY_HOMEPAGE` → `HOME` | keyboard, Consumer AC Home |
 | Back | `KEY_BACK` → `BACK` | keyboard, Consumer AC Back |
 | Screenshot | keyboard, `0x46` Print Screen → `KEY_SYSRQ` | same |
+| App launcher | shell, `ALL_APPS` | same |
 
 The shell's `input keyevent`, once per press, stands in for the keyboard only if it failed to come up.
 
+- **App launcher is this fork's, and always the shell's** (`KeyboardFrame.SENDABLE_KEYS`), so it
+  needs Shizuku. XREAL Aura, Android XR, 2026-11-24: `input keyevent 284` brings up
+  `SysUiHomeActivity`, the launcher; `Generic.kl` there gives no scan code `ALL_APPS`, and the
+  Consumer usage it lists, `0x1A2`, reaches Android as `APP_SWITCH` first.
 - **Withheld before either output.** `KeyBindings.withheldFrom` drops bound buttons from the
   player's input as the controller reports it, so the same rule covers sideways Joy-Cons and both
   outputs. Android keys take buttons only.

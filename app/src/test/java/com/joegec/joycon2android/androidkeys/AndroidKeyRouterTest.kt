@@ -49,6 +49,20 @@ class AndroidKeyRouterTest {
     }
 
     @Test
+    fun `the launcher goes through the shell even while the keyboard is up`() {
+        keyboardOn.value = true
+        bindings.value = mapOf(
+            PlayerNumber.P1 to bindings(AndroidKey.ALL_APPS to JoyconButton.Plus, AndroidKey.SCREENSHOT to JoyconButton.Capture),
+        )
+
+        val routed = router.route(holding(JoyconButton.Plus, JoyconButton.Capture))
+        router.route(holding(JoyconButton.Plus, JoyconButton.Capture))
+
+        assertEquals(listOf(AndroidKey.ALL_APPS), pressed)
+        assertEquals(setOf(AndroidKey.SCREENSHOT), routed.keyboard.androidKeys)
+    }
+
+    @Test
     fun `screenshot goes through the shell once per press however long it is held`() {
         bindings.value = mapOf(PlayerNumber.P1 to bindings(AndroidKey.SCREENSHOT to JoyconButton.Capture))
 

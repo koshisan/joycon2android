@@ -220,6 +220,7 @@ internal fun AndroidKey.label(): String = when (this) {
     AndroidKey.HOME -> stringResource(R.string.android_key_home)
     AndroidKey.BACK -> stringResource(R.string.android_key_back)
     AndroidKey.SCREENSHOT -> stringResource(R.string.android_key_screenshot)
+    AndroidKey.ALL_APPS -> stringResource(R.string.android_key_all_apps)
 }
 
 @Composable

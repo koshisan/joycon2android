@@ -20,11 +20,12 @@ class AndroidKeyRouter(
     fun route(state: AppUiState): RoutedOutputs {
         val notOnPad = state.players.associate { it.player to bindings.heldKeys(it) - sentByPad(it) }
         val onKeyboard = keyboardEnabled.value
-        if (onKeyboard) heldThroughShell = notOnPad else pressNewlyHeld(notOnPad)
+        val typed = if (onKeyboard) KeyboardFrame.SENDABLE_KEYS else emptySet()
+        pressNewlyHeld(notOnPad, typed)
         return RoutedOutputs(
             gamepad = state.players.map { GamepadFrame(bindings.of(it).withheldFrom(it), sentByPad(it)) },
             dsu = state.activePlayers.map { bindings.of(it).withheldFrom(it) },
-            keyboard = KeyboardFrame(androidKeys = if (onKeyboard) notOnPad.values.flatten().toSet() else emptySet()),
+            keyboard = KeyboardFrame(androidKeys = notOnPad.values.flatten().toSet() intersect typed),
         )
     }
 
@@ -32,8 +33,8 @@ class AndroidKeyRouter(
         if (padEnabled.value) bindings.heldKeys(player) intersect GamepadFrame.SENDABLE_KEYS else emptySet()
 
     // The shell presses once per press, so a key held across frames fires only as it goes down.
-    private fun pressNewlyHeld(held: Map<PlayerNumber, Set<AndroidKey>>) {
-        held.forEach { (player, keys) -> (keys - heldThroughShell[player].orEmpty()).forEach(pressKey) }
+    private fun pressNewlyHeld(held: Map<PlayerNumber, Set<AndroidKey>>, typed: Set<AndroidKey>) {
+        held.forEach { (player, keys) -> (keys - typed - heldThroughShell[player].orEmpty()).forEach(pressKey) }
         heldThroughShell = held
     }
 }

@@ -33,6 +33,7 @@ class ShellAndroidKeyPresser(
             AndroidKey.HOME -> KeyEvent.KEYCODE_HOME
             AndroidKey.BACK -> KeyEvent.KEYCODE_BACK
             AndroidKey.SCREENSHOT -> KeyEvent.KEYCODE_SYSRQ
+            AndroidKey.ALL_APPS -> KeyEvent.KEYCODE_ALL_APPS
         }
 
     private companion object {

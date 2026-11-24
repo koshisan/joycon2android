@@ -136,6 +136,7 @@
     <string name="android_key_home">Home</string>
     <string name="android_key_back">Back</string>
     <string name="android_key_screenshot">Screenshot</string>
+    <string name="android_key_all_apps">App launcher</string>
     <string name="android_keys_need_shizuku">Over DSU, these need Shizuku running.</string>
     <string name="section_keyboard">Keyboard</string>
     <string name="keyboard_add_key">Add a key</string>
