@@ -86,6 +86,8 @@ import com.joegec.joycon2android.session.UnassignControllerUseCase
 import com.joegec.joycon2android.dsu.DisableDsuUseCase
 import com.joegec.joycon2android.joyhands.JoyhandsFeed
 import com.joegec.joycon2android.joyhands.JoyhandsRepository
+import com.joegec.joycon2android.joyhands.JoyhandsVibration
+import com.joegec.joycon2android.joyhands.ObserveJoyhandsHapticsUseCase
 import com.joegec.joycon2android.joyhands.PushJoyhandsUseCase
 import com.joegec.joycon2android.settings.SetJoyhandsUseCase
 import com.joegec.joycon2android.settings.SetGyroMouseUseCase
@@ -178,6 +180,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -298,11 +301,19 @@ class AppContainer(context: Context) {
     // --- joyhands (this fork): docs/joyhands.md ---
     private val joyhandsRepository: JoyhandsRepository = JoyhandsFeed()
     private val pushJoyhands = PushJoyhandsUseCase(joyhandsRepository)
+    private val observeJoyhandsHaptics = ObserveJoyhandsHapticsUseCase(joyhandsRepository)
+    private val joyhandsVibration = JoyhandsVibration(scope, controllerRepository)
     private val joyhandsOn = observeOutputSettings().map { it.joyhands }.distinctUntilChanged()
 
     // Straight from the controllers, not the session: joyhands wants every Joy-Con, assigned to a player or not.
     private val joyhandsJob = scope.launch(Dispatchers.IO) {
-        joyhandsOn.collectLatest { on -> if (on) controllerRepository.controllers.collect { pushJoyhands(it) } }
+        joyhandsOn.collectLatest { on ->
+            if (!on) return@collectLatest
+            coroutineScope {
+                launch { controllerRepository.controllers.collect { pushJoyhands(it) } }
+                launch { observeJoyhandsHaptics().collect { joyhandsVibration.play(it) } }
+            }
+        }
     }
 
     // --- Assignment ---

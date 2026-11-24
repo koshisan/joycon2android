@@ -30,3 +30,25 @@ driver, so they come from this app.
   **Faster controller updates**, so the Joy-Cons report every 15 ms while it is on.
 - Sticks go out as `StickCalibrator` leaves them; buttons are the raw bitmap, before any mapping.
 - Nothing listens when joyhands' sender is not running; the datagrams are then dropped.
+
+## Vibration
+
+The other way round: the SteamVR driver of joyhands sends every vibration SteamVR asks a hand for to
+the sender, which passes it on to `127.0.0.1:27818` while the setting is on. 14 bytes little-endian
+(`JoyhandsHapticPacket`, `struct jh_haptic`):
+
+| Offset | Type | Field |
+|---|---|---|
+| 0 | u32 | magic `JHV1` (`0x3156484A`) |
+| 4 | u8 | protocol, 1 |
+| 5 | u8 | side: 0 left, 1 right |
+| 6 | u16 | duration in ms, 0 for a single pulse |
+| 8 | u16 | frequency in Hz |
+| 10 | u16 | amplitude, 0..65535 |
+| 12 | u16 | zero |
+
+- `JoyhandsVibration` plays it as [HD rumble](protocol.md#hd-rumble) on the Joy-Con of that side,
+  assigned to a player or not, and stops it when its time is up.
+- **Under 200 Hz is the strong motor, anything else the weak one**, at half the asked amplitude.
+  The split and the strength are guesses, not yet tuned on hardware.
+- **At least 40 ms.** A single pulse from SteamVR is shorter than the 12 ms one rumble packet carries.
